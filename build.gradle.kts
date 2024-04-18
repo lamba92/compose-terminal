@@ -10,6 +10,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     google()
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -22,6 +23,7 @@ dependencies {
     implementation("io.ktor:ktor-server-cio:2.3.10")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.10")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.10")
+    implementation("com.github.Dansoftowner:jSystemThemeDetector:3.6")
     implementation("ch.qos.logback:logback-classic:1.5.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
     implementation("io.ktor:ktor-client-logging:2.3.10")
