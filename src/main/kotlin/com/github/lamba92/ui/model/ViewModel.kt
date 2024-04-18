@@ -11,17 +11,22 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import java.io.Closeable
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.shareIn
 
 class ViewModel : Closeable {
     private val scope = CoroutineScope(SupervisorJob())
@@ -41,7 +46,11 @@ class ViewModel : Closeable {
     init {
         fetchTimeChannel
             .consumeAsFlow()
+            .shareIn(scope, SharingStarted.Eagerly, 0)
+            .onEach { mutableResourceFlow.emit(ResourceStatus.Loading) }
+            .onEach { delay(2.seconds) }
             .map { httpClient.get(WorldTimeApiBerlinUrl).body<WorldTimeApiResponse>() }
+            .onEach { if (Random.nextBoolean()) error("Random error") }
             .onEach { mutableResourceFlow.emit(ResourceStatus.Success(it)) }
             .retry {
                 mutableResourceFlow.emit(ResourceStatus.Error(it.message ?: "Unknown error"))

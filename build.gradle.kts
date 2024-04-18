@@ -2,6 +2,8 @@ plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.serialization") version "1.9.23"
     id("org.jetbrains.compose") version "1.6.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    application
 }
 
 group = "com.github.lamba92"
@@ -11,6 +13,10 @@ repositories {
     mavenCentral()
     google()
     maven("https://jitpack.io")
+}
+
+application {
+    mainClass = "com.github.lamba92.MainKt"
 }
 
 dependencies {
@@ -34,8 +40,15 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+    startScripts {
+        doLast {
+            windowsScript.writeText(windowsScript.readText().replace("set CLASSPATH=.*", "set CLASSPATH=.;%APP_HOME%/lib/*"))
+        }
+    }
 }
 kotlin {
     jvmToolchain(17)
